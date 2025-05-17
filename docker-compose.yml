@@ -1,0 +1,38 @@
+services:
+  jira:
+    depends_on:
+      - postgres
+    image: atlassian/jira-software:10.6.0-ubi9
+    container_name: jira
+    networks:
+      - jira-network
+    volumes:
+      - jira_data:/var/atlassian/jira
+    ports:
+      - "8080:8080"
+
+  postgres:
+    image: postgres:17-alpine
+    networks:
+      - jira-network
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    environment:
+      - "POSTGRES_USER=jira"
+      - "POSTGRES_PASSWORD=secretpassword"
+      - "POSTGRES_DB=jiradb"
+      - "POSTGRES_ENCODING=UNICODE"
+      - "POSTGRES_COLLATE=C"
+      - "POSTGRES_COLLATE_TYPE=C"
+
+volumes:
+  jira_data:
+    external: false
+  postgres_data:
+    external: false
+
+networks:
+  jira-network:
+    driver: bridge
